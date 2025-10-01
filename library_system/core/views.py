@@ -205,7 +205,6 @@ def book_delete(request, pk):
     return redirect('book_manage_list')
 
 
-@staff_required
 def dashboard(request):
     by_cat = list(
         Book.objects.values('category__name')

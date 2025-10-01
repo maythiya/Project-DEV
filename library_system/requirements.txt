@@ -5,3 +5,4 @@ ipython
 pillow
 django-widget-tweaks
 requests
+pytest

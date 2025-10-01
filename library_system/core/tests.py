@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
-from library.models import Book, Category, Loan
+from core.models import Book, Category, Loan
 
 
 @pytest.mark.django_db
@@ -17,8 +17,8 @@ def test_borrow_and_return_flow(client):
     b.refresh_from_db()
     assert b.available_copies == 0
     loan = Loan.objects.get(user=u, book=b, returned_at__isnull=True)
-    
-    
+
+
     # คืน
     resp = client.get(f'/loan/{loan.id}/return/')
     b.refresh_from_db(); loan.refresh_from_db()
