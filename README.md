@@ -70,7 +70,7 @@ project-root/
 🛠️ Installation
 Copy code
 # Clone repo
-git clone https://github.com/username/library-system.git
+git clone (https://github.com/maythiya/Project-DEV.git)
 cd library-system
 
 # สร้าง Virtual Env
