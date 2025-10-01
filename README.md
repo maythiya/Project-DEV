@@ -15,7 +15,7 @@
 ---
 
 ## 🏗️ System Architecture
-```mermaid
+
 flowchart TD
     A[Frontend (Tailwind + HTMX)] -->|Request| B[Django Views & Controllers]
     B --> C[Database (SQLite/MySQL)]
