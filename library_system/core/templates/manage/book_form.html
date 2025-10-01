@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}{{ form.instance.pk|yesno:'แก้ไขหนังสือ,เพิ่มหนังสือ' }} · UBU Library{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-white rounded-2xl shadow p-6">
+  <h2 class="text-2xl font-bold mb-4">{{ form.instance.pk|yesno:'แก้ไขหนังสือ,เพิ่มหนังสือ' }}</h2>
+
+  <form method="post" enctype="multipart/form-data" class="space-y-4" id="bookForm">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="text-sm text-red-600">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div>
+      <label class="block text-sm font-medium mb-1">ชื่อหนังสือ</label>
+      {{ form.title }} {{ form.title.errors }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">ผู้แต่ง</label>
+      {{ form.author }} {{ form.author.errors }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">หมวดหมู่</label>
+      {{ form.category }} {{ form.category.errors }}
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">คำอธิบาย</label>
+      {{ form.description }} {{ form.description.errors }}
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">ปกหนังสือ (อัปโหลดไฟล์)</label>
+      {{ form.cover_image }} {{ form.cover_image.errors }}
+      <p class="text-xs text-slate-500 mt-1">หรือวางลิงก์รูปด้านล่างแทนการอัปโหลด</p>
+    </div>
+
+    <!-- ใหม่: ปกหนังสือ (URL) -->
+    <div>
+      <label class="block text-sm font-medium mb-1">ปกหนังสือ (URL)</label>
+      {{ form.cover_image_url }}
+      <p class="text-xs text-slate-500">เช่น
+        <code>https://covers.openlibrary.org/b/id/10523358-L.jpg</code>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">จำนวนทั้งหมด</label>
+        {{ form.total_copies }} {{ form.total_copies.errors }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">คงเหลือ</label>
+        {{ form.available_copies }} {{ form.available_copies.errors }}
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2">
+      <button class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">บันทึก</button>
+      <a href="{% url 'book_manage_list' %}" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200">ยกเลิก</a>
+
+      <!-- ปุ่มเดโม่ -->
+      <button type="button" id="fillDemo"
+              class="ml-auto px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
+        เติมเดโม่
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // กด “เติมเดโม่” จะกรอกตัวอย่าง + ปกจาก URL ให้พร้อม
+  document.getElementById('fillDemo').addEventListener('click', () => {
+    const f = document.getElementById('bookForm');
+    f.querySelector('[name=title]').value = 'Django By Example';
+    f.querySelector('[name=author]').value = 'Antonio Melé';
+    f.querySelector('[name=description]').value =
+      'ตัวอย่างเดโม่: โปรเจกต์จริงด้วย Django — สร้างระบบยืม-คืน, จัดการหนังสือ, dashboard ฯลฯ';
+    // ใส่ URL ปกจาก Open Library (สาธารณะ)
+    const urlInput = f.querySelector('[name=cover_image_url]');
+    if (urlInput) urlInput.value = 'https://covers.openlibrary.org/b/id/10523358-L.jpg';
+    // จำนวนเล่ม
+    f.querySelector('[name=total_copies]').value = 3;
+    f.querySelector('[name=available_copies]').value = 3;
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+[
+  { "model": "core.category", "pk": 1, "fields": { "name": "Programming" } },
+  { "model": "core.category", "pk": 2, "fields": { "name": "Novel" } },
+
+  { "model": "core.book", "pk": 1, "fields": {
+      "title": "Django By Example",
+      "author": "Antonio Mele",
+      "category": 1,
+      "description": "Build projects with Django",
+      "total_copies": 3,
+      "available_copies": 3,
+      "created_at": "2025-10-01T12:00:00Z"
+  }}
+]

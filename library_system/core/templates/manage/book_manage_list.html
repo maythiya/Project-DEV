@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-6xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-blue-800 flex items-center gap-2">
+            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19h16M4 15h16M4 11h16M4 7h16"></path></svg>
+            จัดการหนังสือ
+        </h2>
+        <a href="{% url 'book_create' %}" class="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition font-semibold flex items-center gap-2">
+            <span class="text-xl">+</span> เพิ่มหนังสือ
+        </a>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+        {% for b in books %}
+        <div class="p-6 bg-white rounded-2xl shadow-lg flex flex-col md:flex-row md:items-center md:justify-between border border-gray-100 hover:shadow-xl transition">
+            <div>
+                <div class="font-semibold text-lg text-blue-700">{{ b.title }}</div>
+                <div class="text-sm text-gray-600 mt-1">{{ b.author }} · {{ b.category }}</div>
+                <div class="text-sm mt-1 text-green-700 font-semibold">คงเหลือ: {{ b.available_copies }}/{{ b.total_copies }}</div>
+            </div>
+            <div class="mt-4 md:mt-0 flex gap-2">
+                <a href="{% url 'book_edit' b.id %}" class="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 transition font-semibold">แก้ไข</a>
+                <a href="{% url 'book_delete' b.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition font-semibold" onclick="return confirm('ลบหนังสือ?')">ลบ</a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-gray-600 text-center py-10 bg-white rounded-xl shadow">ยังไม่มีหนังสือ</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

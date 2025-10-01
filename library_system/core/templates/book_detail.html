@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ book.title }} · UBU Library{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto p-6 grid md:grid-cols-3 gap-8">
+  <div>
+    {% if book.cover_image %}
+      <img src="{{ book.cover_image.url }}" alt="{{ book.title }}"
+           class="rounded-2xl shadow w-full object-cover aspect-[3/4]">
+    {% else %}
+      <div class="rounded-2xl bg-slate-100 w-full aspect-[3/4] flex items-center justify-center text-slate-400">
+        ไม่มีปก
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="md:col-span-2 space-y-4">
+    <h1 class="text-3xl font-bold">{{ book.title }}</h1>
+    <p class="text-slate-600">ผู้แต่ง: <span class="font-medium">{{ book.author }}</span></p>
+    <p class="text-slate-600">หมวดหมู่: {{ book.category }}</p>
+    {% if book.description %}<p class="leading-relaxed">{{ book.description }}</p>{% endif %}
+    <div class="text-sm text-slate-600">
+      คงเหลือ: <span class="font-semibold">{{ book.available_copies }}</span> / {{ book.total_copies }}
+    </div>
+
+    <div class="flex flex-wrap gap-3 pt-2">
+      {% if user.is_authenticated %}
+        {% if book.available_copies > 0 %}
+          <a href="{% url 'borrow_book' book.id %}"
+             class="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+            ยืมหนังสือ
+          </a>
+        {% else %}
+          <button class="px-5 py-2 rounded-lg bg-slate-200 text-slate-500 cursor-not-allowed">
+            ถูกยืมหมดแล้ว
+          </button>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'login' %}" class="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+          เข้าสู่ระบบเพื่อยืม
+        </a>
+      {% endif %}
+      <a href="{% url 'book_list' %}" class="px-5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200">← กลับหน้ารายการ</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,51 +1,99 @@
 {% extends "base.html" %}
-
 {% load static %}
+{% block title %}หน้าแรก · UBU Library{% endblock %}
 {% block content %}
-<!-- Include Navbar -->
-{% include "navbar.html" %}
 
-<div class="p-8 space-y-8">
-
-  <!-- หนังสือยอดนิยม -->
-  <section>
-    <h2 class="text-2xl font-bold mb-4">Popular books</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {% for book in top_books %}
-      <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center">
-        <img src="{{ book.cover_image.url }}" class="h-40 w-32 object-cover rounded-lg mb-2" alt="{{ book.title }}">
-        <h3 class="text-lg font-semibold text-center">{{ book.title }}</h3>
-        <p class="text-sm text-gray-500">{{ book.author }}</p>
-      </div>
-      {% endfor %}
+<!-- HERO + SEARCH -->
+<section class="mb-10 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 shadow">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div>
+      <h1 class="text-3xl md:text-4xl font-bold">ค้นพบหนังสือดี ๆ ในห้องสมุด</h1>
+      <p class="mt-2 text-white/90">ยืมง่าย คืนสะดวก ติดตามสถานะได้จากหน้า “ยืมของฉัน”</p>
     </div>
-  </section>
-
-  <!-- หนังสือใหม่ -->
-  <section>
-    <h2 class="text-2xl font-bold mb-4">New book</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {% for book in new_books %}
-      <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center">
-        <img src="{{ book.cover_image.url }}" class="h-40 w-32 object-cover rounded-lg mb-2" alt="{{ book.title }}">
-        <h3 class="text-lg font-semibold text-center">{{ book.title }}</h3>
-        <p class="text-sm text-gray-500">{{ book.author }}</p>
+    <form method="get" action="" class="w-full md:w-96">
+      <label class="sr-only" for="q">ค้นหาหนังสือ</label>
+      <div class="flex rounded-xl overflow-hidden shadow ring-1 ring-white/20 bg-white">
+        <input id="q" name="q" type="search" value="{{ request.GET.q }}" placeholder="ค้นหาชื่อหนังสือหรือผู้แต่ง..." class="w-full px-4 py-2 text-slate-800 outline-none">
+        <button class="px-4 bg-slate-900 text-white">ค้นหา</button>
       </div>
-      {% endfor %}
-    </div>
-  </section>
+    </form>
+  </div>
+</section>
 
-  <!-- หมวดหมู่ -->
-  <section>
-    <h2 class="text-2xl font-bold mb-4">Category</h2>
-    <div class="flex flex-wrap gap-4">
-      {% for cat in categories %}
-      <div class="bg-blue-100 text-blue-800 rounded-full px-4 py-2 cursor-pointer hover:bg-blue-200">
-        {{ cat.name }}
-      </div>
-      {% endfor %}
-    </div>
-  </section>
+<!-- POPULAR -->
+<section class="mb-10">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-2xl font-bold">หนังสือยอดนิยม</h2>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+    {% for book in top_books %}
+      <a href="{% url 'book_detail' book.id %}" class="group bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">
+        <div class="aspect-[3/4] bg-slate-100">
+          {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+          {% else %}
+            <div class="w-full h-full flex items-center justify-center text-slate-400">ไม่มีปก</div>
+          {% endif %}
+        </div>
+        <div class="p-3">
+          <h3 class="font-semibold leading-snug group-hover:text-blue-700">{{ book.title }}</h3>
+          <p class="text-sm text-slate-500">{{ book.author }}</p>
+          <div class="mt-2">
+            {% if book.available_copies > 0 %}
+              <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700">คงเหลือ {{ book.available_copies }}</span>
+            {% else %}
+              <span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700">ถูกยืมหมด</span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <p class="text-slate-600">ยังไม่มีข้อมูลหนังสือยอดนิยม</p>
+    {% endfor %}
+  </div>
+</section>
 
-</div>
-{% endblock %}
+<!-- NEW BOOKS -->
+<section class="mb-10">
+  <h2 class="text-2xl font-bold mb-3">หนังสือมาใหม่</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+    {% for book in new_books %}
+      <a href="{% url 'book_detail' book.id %}" class="group bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">
+        <div class="aspect-[3/4] bg-slate-100">
+          {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+          {% else %}
+            <div class="w-full h-full flex items-center justify-center text-slate-400">ไม่มีปก</div>
+          {% endif %}
+        </div>
+        <div class="p-3">
+          <h3 class="font-semibold leading-snug group-hover:text-blue-700">{{ book.title }}</h3>
+          <p class="text-sm text-slate-500">{{ book.author }}</p>
+          <div class="mt-2">
+            {% if book.available_copies > 0 %}
+              <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700">คงเหลือ {{ book.available_copies }}</span>
+            {% else %}
+              <span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700">ถูกยืมหมด</span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <p class="text-slate-600">ยังไม่มีหนังสือใหม่</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+{% if categories %}
+<section class="mb-8">
+  <h2 class="text-xl font-semibold mb-3">หมวดหมู่</h2>
+  <div class="flex flex-wrap gap-2">
+    {% for cat in categories %}
+      <a href="?category={{ cat.id }}" class="px-3 py-1.5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm">{{ cat.name }}</a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock content %}

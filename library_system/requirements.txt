@@ -1,3 +1,7 @@
 django-tailwind
 django
 django_browser_reload
+ipython
+pillow
+django-widget-tweaks
+requests

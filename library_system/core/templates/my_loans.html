@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}ยืมของฉัน · UBU Library{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+<h2 class="text-3xl font-bold mb-8 text-blue-800 flex items-center gap-2">
+<svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle></svg>
+รายการยืมของฉัน
+</h2>
+<div class="space-y-5">
+{% for loan in loans %}
+<div class="p-6 rounded-2xl shadow-lg bg-white flex flex-col md:flex-row md:items-center md:justify-between border border-gray-100 hover:shadow-xl transition">
+<div>
+<div class="font-semibold text-lg text-blue-700">{{ loan.book.title }}</div>
+<div class="text-sm text-gray-600 mt-1">กำหนดคืน: <span class="font-medium">{{ loan.due_at|date:'d/m/Y H:i' }}</span></div>
+{% if loan.is_overdue %}
+<div class="text-red-600 text-sm mt-1 font-bold">เกินกำหนด</div>
+{% endif %}
+</div>
+<div class="mt-4 md:mt-0">
+{% if not loan.returned_at %}
+<a href="{% url 'return_book' loan.id %}" class="px-5 py-2 rounded-lg bg-green-600 text-white font-semibold shadow hover:bg-green-700 transition">คืนหนังสือ</a>
+{% else %}
+<span class="text-gray-500 bg-gray-100 px-4 py-2 rounded-lg">คืนแล้ว ({{ loan.returned_at|date:'d/m/Y' }})</span>
+{% endif %}
+</div>
+</div>
+{% empty %}
+<div class="text-center p-12 bg-white rounded-2xl shadow">
+<div class="text-5xl mb-3">📚</div>
+<p class="text-gray-600">ยังไม่มีประวัติการยืม</p>
+</div>
+{% endfor %}
+</div>
+</div>
+{% endblock %}

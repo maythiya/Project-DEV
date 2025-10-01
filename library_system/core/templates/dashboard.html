@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}สถิติห้องสมุด · UBU Library{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8">
+  <h2 class="text-3xl font-bold text-blue-800">สถิติห้องสมุด</h2>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">จำนวนหนังสือแต่ละหมวดหมู่</h3>
+      <div id="catEmpty" class="hidden text-slate-500">ยังไม่มีข้อมูลหนังสือ</div>
+      <canvas id="catChart"></canvas>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">หนังสือยอดนิยม</h3>
+      <div id="topEmpty" class="hidden text-slate-500">ยังไม่มีประวัติการยืม</div>
+      <canvas id="topChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script id="stats-data" type="application/json">{{ stats_json|safe }}</script>
+
+<script>
+(function () {
+  // 1) เช็กว่า Chart.js โหลดจริง
+  if (typeof Chart === 'undefined') {
+    console.error('Chart.js not loaded');
+    document.getElementById('catEmpty')?.classList.remove('hidden');
+    document.getElementById('topEmpty')?.classList.remove('hidden');
+    return; // ตอนนี้อยู่ในฟังก์ชัน -> ถูกต้อง
+  }
+
+  // 2) อ่านและ parse ข้อมูลจาก Django
+  let data = { by_cat: [], top_borrow: [] };
+  try {
+    const raw = document.getElementById('stats-data')?.textContent ?? '{}';
+    data = JSON.parse(raw);
+  } catch (e) {
+    console.error('Parse stats_json failed:', e);
+  }
+
+  const byCat = Array.isArray(data.by_cat) ? data.by_cat : [];
+  const topBorrow = Array.isArray(data.top_borrow) ? data.top_borrow : [];
+
+  // 3) วาดกราฟ
+  if (byCat.length) {
+    new Chart(document.getElementById('catChart'), {
+      type: 'bar',
+      data: {
+        labels: byCat.map(x => x.category__name || 'ไม่ระบุ'),
+        datasets: [{
+          label: 'จำนวนหนังสือ',
+          data: byCat.map(x => Number(x.n) || 0),
+          backgroundColor: 'rgba(37,99,235,0.6)',
+          borderColor: 'rgb(37,99,235)',
+          borderWidth: 1
+        }]
+      },
+      options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+    });
+  } else {
+    document.getElementById('catEmpty')?.classList.remove('hidden');
+  }
+
+  if (topBorrow.length) {
+    new Chart(document.getElementById('topChart'), {
+      type: 'bar',
+      data: {
+        labels: topBorrow.map(x => x.book__title),
+        datasets: [{
+          label: 'จำนวนการยืม',
+          data: topBorrow.map(x => Number(x.n) || 0),
+          backgroundColor: 'rgba(16,185,129,0.6)',
+          borderColor: 'rgb(16,185,129)',
+          borderWidth: 1
+        }]
+      },
+      options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+    });
+  } else {
+    document.getElementById('topEmpty')?.classList.remove('hidden');
+  }
+})();
+</script>
+{% endblock %}

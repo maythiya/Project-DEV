@@ -1,22 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Library System{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <meta charset="utf-8" />
+  <title>{% block title %}UBU Library{% endblock %}</title>
+
+  <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+
+  <!-- Alpine: โหลดครั้งเดียว และเรียงลำดับที่ถูกต้อง (ปลั๊กอินก่อน Core) -->
+  <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body>
-    <main>
-        {% block content %}
-        <!-- เนื้อหาหลักของแต่ละหน้า -->
-        {% endblock %}
-    </main>
-    <footer>
-        <div class="footer">
-            <p>&copy; 2025 Library System. All rights reserved.</p>
-        </div>
-    </footer>
+<body class="bg-slate-50 text-slate-800">
+  {% include 'navbar.html' %}
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- สำคัญ: ให้เพจย่อยใส่สคริปต์ (เช่น Chart.js) ผ่าน block นี้ -->
+  {% block scripts %}{% endblock %}
 </body>
 </html>
