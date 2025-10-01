@@ -1,1 +1,3 @@
 django-tailwind
+django
+django_browser_reload

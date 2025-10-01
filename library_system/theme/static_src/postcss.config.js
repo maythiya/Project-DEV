@@ -12,9 +12,11 @@ module.exports = {
     },
   },
 
+  
   plugins: {
-    "@tailwindcss/postcss": {},
-    "postcss-simple-vars": {},
-    "postcss-nested": {}
+    '@tailwindcss/postcss': {},
+    'postcss-nested': {},
+    'postcss-simple-vars': {},
+    autoprefixer: {},
   },
-}
+};

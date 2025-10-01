@@ -44,7 +44,7 @@ def user_logout(request):
     logout(request)
     return redirect("login")
 
-def book_list(request):
+def base(request):
     books = Book.objects.all()
 
     top_books = Book.objects.order_by('-rating')[:5]  # 5 อันดับยอดนิยม
@@ -57,4 +57,4 @@ def book_list(request):
         'categories': categories,
     }
 
-    return render(request, "book_list.html", {"books": books})
+    return render(request, "base.html", {"books": books})

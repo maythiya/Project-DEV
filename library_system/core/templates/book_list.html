@@ -1,10 +1,16 @@
+{% extends "base.html" %}
+
+{% load static %}
 {% block content %}
+<!-- Include Navbar -->
+{% include "navbar.html" %}
+
 <div class="p-8 space-y-8">
 
   <!-- หนังสือยอดนิยม -->
   <section>
     <h2 class="text-2xl font-bold mb-4">Popular books</h2>
-    <div class="grid grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {% for book in top_books %}
       <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center">
         <img src="{{ book.cover_image.url }}" class="h-40 w-32 object-cover rounded-lg mb-2" alt="{{ book.title }}">
@@ -18,7 +24,7 @@
   <!-- หนังสือใหม่ -->
   <section>
     <h2 class="text-2xl font-bold mb-4">New book</h2>
-    <div class="grid grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {% for book in new_books %}
       <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center">
         <img src="{{ book.cover_image.url }}" class="h-40 w-32 object-cover rounded-lg mb-2" alt="{{ book.title }}">
