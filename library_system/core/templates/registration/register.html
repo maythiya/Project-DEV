@@ -3,33 +3,50 @@
 {% block title %}สมัครสมาชิก · UBU Library{% endblock %}
 {% block content %}
 <div class="max-w-md mx-auto bg-white rounded-2xl shadow p-6">
-<h2 class="text-2xl font-bold mb-4">สมัครสมาชิก</h2>
-<form method="post" class="space-y-3">
-{% csrf_token %}
-{% if form.non_field_errors %}
-<div class="text-sm text-red-600">{{ form.non_field_errors }}</div>
-{% endif %}
+  <h2 class="text-2xl font-bold mb-4">สมัครสมาชิก</h2>
+  <form method="post" class="space-y-3">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="text-sm text-red-600">{{ form.non_field_errors }}</div>
+    {% endif %}
 
+    <!-- Username -->
+    <div>
+      <label class="block text-sm font-medium mb-1">ชื่อผู้ใช้</label>
+      {{ form.username|add_class:'w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400' }}
+      {{ form.username.errors }}
+    </div>
 
-<div>
-<label class="block text-sm font-medium mb-1">ชื่อผู้ใช้</label>
-{{ form.username|add_class:'w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400' }}
-{{ form.username.errors }}
-</div>
-<div>
-<label class="block text-sm font-medium mb-1">รหัสผ่าน</label>
-{{ form.password1|add_class:'w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400' }}
-{{ form.password1.errors }}
-</div>
-<div>
-<label class="block text-sm font-medium mb-1">ยืนยันรหัสผ่าน</label>
-{{ form.password2|add_class:'w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400' }}
-{{ form.password2.errors }}
-</div>
+    <!-- Password -->
+    <div>
+      <label class="block text-sm font-medium mb-1">รหัสผ่าน</label>
+      {{ form.password1|add_class:'w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400' }}
+      {{ form.password1.errors }}
+    </div>
 
+    <!-- Confirm Password -->
+    <div>
+      <label class="block text-sm font-medium mb-1">ยืนยันรหัสผ่าน</label>
+      {{ form.password2|add_class:'w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400' }}
+      {{ form.password2.errors }}
+    </div>
 
-<button class="w-full bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800">สมัครสมาชิก</button>
-</form>
-<p class="mt-3 text-sm">มีบัญชีแล้ว? <a href="{% url 'login' %}" class="text-blue-600">เข้าสู่ระบบ</a></p>
+    <!-- Checkbox: ยอมรับเงื่อนไข -->
+    <div class="flex items-center gap-2">
+      <input type="checkbox" name="terms" required class="text-blue-600 focus:ring-blue-500">
+      <label for="terms" class="text-sm text-gray-700">
+        ฉันยอมรับ <a href="#" class="text-blue-600 underline">เงื่อนไขการใช้งาน</a>
+      </label>
+    </div>
+
+    <!-- Submit -->
+    <button class="w-full bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800">
+      สมัครสมาชิก
+    </button>
+  </form>
+
+  <p class="mt-3 text-sm">
+    มีบัญชีแล้ว? <a href="{% url 'login' %}" class="text-blue-600">เข้าสู่ระบบ</a>
+  </p>
 </div>
 {% endblock %}

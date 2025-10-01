@@ -38,12 +38,23 @@ class Loan(models.Model):
     returned_at = models.DateTimeField(blank=True, null=True)
 
 
-def save(self, *args, **kwargs):
-    if not self.due_at:
-        self.due_at = (self.borrowed_at or timezone.now()) + timezone.timedelta(days=self.BORROW_DAYS_DEFAULT)
-    super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if not self.due_at:
+            self.due_at = (self.borrowed_at or timezone.now()) + timezone.timedelta(days=self.BORROW_DAYS_DEFAULT)
+        super().save(*args, **kwargs)
 
 
     @property
     def is_overdue(self):
         return not self.returned_at and timezone.now() > self.due_at
+
+
+class Review(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(default=5)  # 1-5 ดาว
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.book.title} - {self.user.username} ({self.rating})"

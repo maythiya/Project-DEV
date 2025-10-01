@@ -17,4 +17,4 @@ urlpatterns = [
     path('manage/books/<int:pk>/delete/', views.book_delete, name='book_delete'),
     path('dashboard/', views.dashboard, name='dashboard'), # Extra charts
     path('register/', views.register, name='register'),
-] 
+]

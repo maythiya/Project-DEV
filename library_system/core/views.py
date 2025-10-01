@@ -4,9 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db import transaction
-from .models import Book, Category, Loan
+from .models import Book, Category, Loan, Review
 from django.contrib.auth.forms import UserCreationForm
-from django.db.models import Count
+from django.db.models import Count, Q, Avg
 from .forms import BookForm
 import json
 import os, mimetypes
@@ -16,6 +16,7 @@ from django.core.files.base import ContentFile
 from django.utils.text import slugify
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.db.models.functions import Length
 
 # Public
 
@@ -29,19 +30,68 @@ def _download_cover_to_contentfile(url: str):
     return filename, ContentFile(r.content)
 
 def book_list(request):
-    top_books = Book.objects.order_by('-created_at')[:5]
-    new_books = Book.objects.order_by('-created_at')[:10]
+    q = request.GET.get('q', '').strip()
+    books = Book.objects.all()
+    if q:
+        books = books.filter(
+            Q(title__icontains=q) | Q(author__icontains=q)
+        )
+    # หนังสือยอดนิยม: นับจำนวน loan
+    top_books = Book.objects.annotate(num_loans=Count('loan')).order_by('-num_loans')[:5]
+    new_books = books.order_by('-created_at')[:5]
     categories = Category.objects.all()
-    return render(request, 'book_list.html', {
+    context = {
         'top_books': top_books,
         'new_books': new_books,
         'categories': categories,
-    })
+        'request': request,
+    }
+    return render(request, 'book_list.html', context)
 
 
 def book_detail(request, pk):
     book = get_object_or_404(Book, pk=pk)
-    return render(request, 'book_detail.html', {'book': book})
+
+    # อ่านรีวิวเรียงใหม่ก่อน
+    reviews = book.reviews.select_related('user').order_by('-created_at')
+
+    # POST: เพิ่มรีวิวใหม่
+    if request.method == 'POST' and request.user.is_authenticated:
+        try:
+            rating = int(request.POST.get('rating', 5))
+        except ValueError:
+            rating = 5
+        rating = max(1, min(5, rating))
+        comment = (request.POST.get('comment') or '').strip()
+        Review.objects.create(book=book, user=request.user, rating=rating, comment=comment)
+        return redirect('book_detail', pk=pk)
+
+    # ===== สถิติรีวิว =====
+    agg = reviews.aggregate(avg=Avg('rating'), count=Count('id'))
+    total = agg['count'] or 0
+    rating_breakdown = []
+    for s in range(5, 0, -1):
+        c = reviews.filter(rating=s).count()
+        pct = (c * 100 / total) if total else 0
+        rating_breakdown.append({'star': s, 'count': c, 'pct': pct})
+
+    # ===== คอมเมนต์ยอดนิยม =====
+    # ถ้า model Review มี field helpful_count (IntegerField) จะใช้เรียงตามนั้น
+    # ถ้าไม่มี จะ fallback เป็นเรียงตามความยาวคอมเมนต์/วันที่ (เพื่อให้มีตัวอย่างขึ้น)
+    if hasattr(Review, 'helpful_count'):
+        reviews_top = reviews.order_by('-helpful_count', '-created_at')[:5]
+    else:
+        reviews_top = reviews.annotate(comment_len= Length ('comment')) \
+                         .order_by('-comment_len', '-created_at')[:5]
+
+    context = {
+        'book': book,
+        'reviews': reviews,
+        'rating_stats': {'avg': agg['avg'] or 0, 'count': total},
+        'rating_breakdown': rating_breakdown,
+        'reviews_top': reviews_top,
+    }
+    return render(request, 'book_detail.html', context)
 
 @login_required
 @transaction.atomic

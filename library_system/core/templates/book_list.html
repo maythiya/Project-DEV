@@ -55,7 +55,7 @@
 
 <!-- NEW BOOKS -->
 <section class="mb-10">
-  <h2 class="text-2xl font-bold mb-3">หนังสือมาใหม่</h2>
+  <h2 class="text-2xl font-bold mb-3">ชั้นหนังสือ</h2>
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
     {% for book in new_books %}
       <a href="{% url 'book_detail' book.id %}" class="group bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">

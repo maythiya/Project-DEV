@@ -44,4 +44,152 @@
     </div>
   </div>
 </div>
+
+<!-- ========== REVIEW & COMMENTS (two columns) ========== -->
+<section class="mt-10">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- LEFT: Summary + Most liked comments -->
+    <div class="space-y-4">
+
+      <!-- Summary card -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-lg font-semibold text-slate-900">Review &amp; Comments</h2>
+
+        <div class="mt-3 flex flex-col items-center justify-center">
+          <div class="text-4xl font-extrabold text-slate-900 leading-none">
+            {{ rating_stats.avg|floatformat:2|default:"0.00" }}
+          </div>
+
+          <!-- Stars (average) -->
+          <div class="mt-2 flex items-center gap-1 text-yellow-400">
+            {% for i in "12345" %}
+              {% if forloop.counter <= rating_stats.avg|floatformat:0 %}
+                <svg class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor"><polygon points="10,1 12.6,7.4 19.5,7.4 14,11.6 16.6,18 10,13.7 3.4,18 6,11.6 0.5,7.4 7.4,7.4"/></svg>
+              {% else %}
+                <svg class="w-6 h-6 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l2.7 6.3 6.8.5-5.2 4.1 1.9 6.6L12 17l-6.2 3.5 1.9-6.6L2.5 9.8l6.8-.5L12 3z"/></svg>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <p class="mt-1 text-xs text-slate-500">
+            ({{ rating_stats.count|default:0 }} Reviews)
+          </p>
+        </div>
+
+        <!-- Breakdown bars 5→1 -->
+        {% if rating_breakdown %}
+        <div class="mt-5 space-y-1.5">
+          {% for row in rating_breakdown %}
+            <div class="flex items-center gap-2">
+              <span class="w-10 text-[11px] text-slate-600">{{ row.star }} ดาว</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-2 bg-yellow-400" style="width: {{ row.pct|floatformat:0 }}%"></div>
+              </div>
+              <span class="w-10 text-right text-[11px] text-slate-500">{{ row.count }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Most liked comments -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h3 class="text-sm font-semibold text-slate-900 mb-3">Comments</h3>
+
+        <div class="space-y-3">
+          {% for r in reviews_top %}
+          <article class="rounded-xl border border-slate-200 p-3">
+            <header class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs font-bold">
+                  {{ r.user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-slate-900">{{ r.user.username }}</div>
+                  <div class="text-[11px] text-slate-500">{{ r.created_at|date:"d M Y" }}</div>
+                </div>
+              </div>
+
+              <!-- stars -->
+              <div class="flex items-center gap-0.5 text-yellow-400">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= r.rating %}
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><polygon points="10,1 12.6,7.4 19.5,7.4 14,11.6 16.6,18 10,13.7 3.4,18 6,11.6 0.5,7.4 7.4,7.4"/></svg>
+                  {% else %}
+                    <svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l2.7 6.3 6.8.5-5.2 4.1 1.9 6.6L12 17l-6.2 3.5 1.9-6.6L2.5 9.8l6.8-.5L12 3z"/></svg>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </header>
+
+            {% if r.comment %}
+              <p class="mt-2 text-sm text-slate-700 leading-relaxed">{{ r.comment }}</p>
+            {% endif %}
+
+          </article>
+          {% empty %}
+            <p class="text-sm text-slate-500">ยังไม่มีคอมเมนต์ยอดนิยม</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Add new review -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
+         x-data="{rating: 5, max: 500, text: ''}">
+      <h3 class="text-lg font-semibold text-slate-900">เพิ่มรีวิวของคุณ</h3>
+
+      {% if user.is_authenticated %}
+        <form method="post" class="mt-4 space-y-4">
+          {% csrf_token %}
+          <!-- stars picker -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ให้คะแนน</label>
+            <div class="flex items-center gap-1">
+              <template x-for="i in 5" :key="i">
+                <button type="button"
+                        @click="rating=i"
+                        :aria-label="`ให้ ${i} ดาว`"
+                        class="w-7 h-7"
+                        :class="i<=rating ? 'text-yellow-400' : 'text-slate-300'">
+                  <svg viewBox="0 0 20 20" fill="currentColor" class="w-7 h-7">
+                    <polygon points="10,1 12.6,7.4 19.5,7.4 14,11.6 16.6,18 10,13.7 3.4,18 6,11.6 0.5,7.4 7.4,7.4"/>
+                  </svg>
+                </button>
+              </template>
+              <input type="hidden" name="rating" :value="rating">
+              <span class="text-xs text-slate-600 ml-1">คะแนน: <span class="font-semibold" x-text="rating"></span>/5</span>
+            </div>
+          </div>
+
+          <!-- comment -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">แสดงความคิดเห็น</label>
+            <textarea name="comment"
+                      x-model="text"
+                      :maxlength="max"
+                      rows="5"
+                      class="w-full rounded-xl border border-slate-300 px-3 py-2 text-[13px] focus:ring focus:ring-blue-200"
+                      placeholder="เล่าความเห็นของคุณเกี่ยวกับเล่มนี้"></textarea>
+            <div class="mt-1 text-[11px] text-slate-500 flex justify-between">
+              <span>คำแนะนำ: เขียนให้เป็นประโยชน์ต่อผู้อ่านท่านอื่น</span>
+              <span x-text="`${text.length}/${max}`"></span>
+            </div>
+          </div>
+
+          <button class="w-full lg:w-auto px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 shadow-sm">
+            ส่งรีวิว
+          </button>
+        </form>
+      {% else %}
+        <p class="mt-3 text-sm text-slate-600">
+          กรุณา <a href="{% url 'login' %}" class="text-blue-600 underline">เข้าสู่ระบบ</a> เพื่อเขียนรีวิว
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+
 {% endblock %}
